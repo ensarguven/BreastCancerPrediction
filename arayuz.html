@@ -1,0 +1,240 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Kanser Tespiti</title>
+<style>
+  body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #121212; /* Daha koyu bir siyah tonu */
+    color: #f0f0f0; /* Açık gri metin rengi */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  .upload-container { 
+    width: 80%;
+    max-width: 500px;
+    background-color: #1e1e1e; /* Orta ton siyah arkaplan */
+    border-radius: 10px; /* Yuvarlak köşeler */
+    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1); /* Hafif beyaz gölge */
+    padding: 20px;
+    text-align: center;
+    
+
+  }
+  .upload-input { 
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #333;
+    background-color: #262626;
+    color: #d0d0d0;
+  }
+  .submit-button { 
+    width: 100%;
+    padding: 10px 20px;
+    background-color: #0066cc; /* Mavi buton rengi */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  .submit-button:hover {
+    background-color: #0057b8; /* Butona hover efekti */
+  }
+  #imagePreview { 
+    margin-top: 20px;
+    max-width: 100%;
+    border-radius: 5px;
+  }
+</style>
+</head>
+<body>
+
+<div class="upload-container">
+  <h1>Kanser Tespiti</h1>
+  <form id="uploadForm">
+    <input type="file" id="imageInput" class="upload-input" accept="image/*" required>
+    <button type="submit" class="submit-button">Yükle</button>
+  </form>
+  <div id="result"></div>
+  <img id="imagePreview" src="" alt="Resim önizlemesi" style="display: none; width: 100px; height: 100px; object-fit: contain;">
+
+    <!-- Add the link here -->
+  <a href="/arayuz2">Görüntü Filtreleme</a></div>
+
+<script>
+  document.getElementById('uploadForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    var imageInput = document.getElementById('imageInput');
+    var imagePreview = document.getElementById('imagePreview');
+    
+    if(imageInput.files.length > 0) {
+      var formData = new FormData();
+      formData.append('file', imageInput.files[0]);
+      
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        imagePreview.src = e.target.result;
+        imagePreview.style.display = 'block';
+      }
+      reader.readAsDataURL(imageInput.files[0]);
+      
+      fetch('/predict', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('result').textContent = 'Sonuç: ' + data.sonuc;
+      })
+      .catch(error => {
+        console.error('Hata:', error);
+      });
+    }
+  });
+</script>
+
+</body>
+</html>
+
+
+<!-- 
+----------------------------------------------------
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Resim Yükleme Sayfası</title>
+<style>
+  body { 
+    font-family: Arial, sans-serif; 
+    background-color: rgba(0, 3, 80, 0.586); /* Arkaplan rengini siyah yap */
+    color: white; /* Metin rengini beyaz yap */
+  }
+  .upload-container { 
+    margin: 20px; 
+    border: 1px solid white; /* Beyaz bir sınır ekle */
+    padding: 20px;
+  }
+  .upload-input { margin: 10px 0; }
+  .submit-button { 
+    padding: 10px 20px; 
+    background-color: rgb(255, 255, 255); /* Butonun arkaplanını beyaz yap */
+    color: black; /* Buton metninin rengini siyah yap */
+    border: none;
+  }
+  #imagePreview { 
+    margin-top: 20px; 
+  }
+</style>
+</head>
+<body>
+
+<div class="upload-container">
+  <h2>Resim Yükleme Formu</h2>
+  <form id="uploadForm">
+    <input type="file" id="imageInput" class="upload-input" accept="image/*" required>
+    <button type="submit" class="submit-button">Yükle</button>
+  </form>
+  <div id="result"></div>
+  <img id="imagePreview" src="" alt="Resim önizlemesi" style="display: none; max-width: 100%;"> <!-- Resim önizlemesi için img etiketi ekle -->
+</div>
+<!--  
+
+<script>
+  document.getElementById('uploadForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    var imageInput = document.getElementById('imageInput');
+    var imagePreview = document.getElementById('imagePreview');
+    
+    if(imageInput.files.length > 0) {
+      var formData = new FormData();
+      formData.append('file', imageInput.files[0]);
+      
+      // Resim önizlemesini göster
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        imagePreview.src = e.target.result;
+        imagePreview.style.display = 'block'; // Resim önizlemesini göster
+      }
+      reader.readAsDataURL(imageInput.files[0]);
+      
+      // Sunucuya resim yükleme isteği gönder
+      fetch('/predict', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('result').textContent = 'Sonuç: ' + data.sonuc;
+      })
+      .catch(error => {
+        console.error('Hata:', error);
+      });
+    }
+  });
+</script>
+
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Resim Yükleme Sayfası</title>
+<style>
+  body { font-family: Arial, sans-serif; }
+  .upload-container { margin: 20px; }
+  .upload-input { margin: 10px 0; }
+  .submit-button { padding: 10px 20px; }
+</style>
+</head>
+<body>
+
+<div class="upload-container">
+  <h2>Resim Yükleme Formu</h2>
+  <form id="uploadForm">
+    <input type="file" id="imageInput" class="upload-input" accept="image/*" required>
+    <button type="submit" class="submit-button">Yükle</button>
+  </form>
+  <div id="result"></div>
+</div>
+
+<script>
+  document.getElementById('uploadForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    var imageInput = document.getElementById('imageInput');
+    if(imageInput.files.length > 0) {
+      var formData = new FormData();
+      formData.append('file', imageInput.files[0]); // Anahtar adını 'file' olarak değiştirin
+      
+      // Sunucuya resim yükleme isteği gönder
+      fetch('/predict', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json()) // JSON cevabını işle
+      .then(data => {
+        document.getElementById('result').textContent = 'Sonuç: ' + data.sonuc; // 'data' yerine 'data.sonuc' kullanın
+      })
+      .catch(error => {
+        console.error('Hata:', error);
+      });
+    }
+  });
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Image Filter</title>
+<style>
+
+  body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #121212; /* Daha koyu bir siyah tonu */
+    color: #f0f0f0; /* Açık gri metin rengi */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  .upload-container { 
+    width: 80%;
+    max-width: 500px;
+    background-color: #1e1e1e; /* Orta ton siyah arkaplan */
+    border-radius: 10px; /* Yuvarlak köşeler */
+    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1); /* Hafif beyaz gölge */
+    padding: 20px;
+    text-align: center;
+  }
+
+  .upload-input { 
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #333;
+    background-color: #262626;
+    color: #d0d0d0;
+  }
+
+  .submit-button { 
+    width: 100%;
+    padding: 10px 20px;
+    background-color: #0066cc; /* Mavi buton rengi */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .submit-button:hover {
+    background-color: #0057b8; /* Butona hover efekti */
+  }
+
+  #imagePreview { 
+    margin-top: 20px;
+    max-width: 100%;
+    border-radius: 5px;
+  }
+
+  img {
+    margin: 10px;
+  }
+  /* Your existing CSS styles here */
+</style>
+</head>
+<body>
+
+<div class="upload-container">
+  <h1>Görüntü Filtreleme</h1>
+  <form id="uploadForm">
+    <input type="file" id="imageInput" class="upload-input" accept="image/png" required>
+    <button type="submit" class="submit-button">Yükle</button>
+  </form>
+  <button id="filter1Button" style="display: none;">Filtre 1</button>
+  <button id="filter2Button" style="display: none;">Filtre 2</button>
+  <button id="filter3Button" style="display: none;">Filtre 3</button>
+
+  <img id="imagePreview" src="" alt="Resim önizlemesi" style="display: none; width: 100px; height: 100px; object-fit: contain;">
+  <img id="filteredImagePreview" src="" alt="Filtered image preview" style="display: none; width: 100px; height: 100px; object-fit: contain;">
+  
+  <!-- Add the link here -->
+  
+  <div id="result"></div>
+  <div id="result2"></div> <!-- New div for Filter 3 image -->
+  <a href="/">Kanser Tespiti</a>
+</div>
+
+
+<script>
+  document.getElementById('uploadForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    var imageInput = document.getElementById('imageInput');
+    var imagePreview = document.getElementById('imagePreview');
+    var filteredImagePreview = document.getElementById('filteredImagePreview');
+    var filter1Button = document.getElementById('filter1Button');
+    var filter2Button = document.getElementById('filter2Button');
+    var filter3Button = document.getElementById('filter3Button');
+
+    if(imageInput.files.length > 0) {
+      var formData = new FormData();
+      formData.append('file', imageInput.files[0]);
+      
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        imagePreview.src = e.target.result;
+        imagePreview.style.display = 'block';
+        filter1Button.style.display = 'block';
+      }
+      reader.readAsDataURL(imageInput.files[0]);
+
+      filter1Button.addEventListener('click', function() {
+        fetch('/filter1', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          filteredImagePreview.src = 'data:image/png;base64,' + data.image;
+          filteredImagePreview.style.display = 'block';
+          filter2Button.style.display = 'block';
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+      });
+
+      filter2Button.addEventListener('click', function() {
+        fetch('/filter2', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          filteredImagePreview.src = 'data:image/png;base64,' + data.image;
+          filteredImagePreview.style.display = 'block';
+          filter3Button.style.display = 'block'; // Make Filter 3 button visible
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+      });   
+
+      filter3Button.addEventListener('click', function() {
+        fetch('/filter3', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          var existingImage = document.getElementById('filtered3Image');
+          if (existingImage) {
+            // If an image already exists, update its src attribute
+            existingImage.src = 'data:image/png;base64,' + data.image;
+          } else {
+            // If no image exists, create a new one
+            var newImage = document.createElement('img');
+            newImage.id = 'filtered3Image';
+            newImage.src = 'data:image/png;base64,' + data.image;
+            newImage.style.display = 'block';
+            newImage.style.width = '100px';
+            newImage.style.height = '100px';
+            newImage.style.objectFit = 'contain';
+            newImage.style.margin = '10px';
+            document.getElementById('result2').appendChild(newImage);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+      });
+    }
+  });
+</script>
+</body>
+</html>
